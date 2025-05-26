@@ -1,10 +1,52 @@
 "use client";
-import { MessageCircle} from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useQuery, gql, useMutation } from "@apollo/client";
+import { useState } from 'react';
+import createApolloClient from '../../apollo-client';
+
+const LOGIN_MUTATION = gql`
+  mutation Login($username: String!, $password: String!) {
+  login(loginInput: {
+    username: $username
+    password: $password
+  }) {
+    access_token
+    user {
+      _id
+      username
+      email
+    }
+  }
+}
+`;
 
 const LoginPage = () => {
   const router = useRouter()
-  
+  const [email, setEmail] = useState('');
+  const [gqlError, setError] = useState('');
+
+  const [password, setPassword] = useState('');
+  const [createUser, { data, loading, error }] = useMutation(LOGIN_MUTATION, { client: createApolloClient() });
+
+  const handleSubmit = async () => {
+    setError('');
+    console.log(email, password)
+    try {
+      const {data} = await createUser({ variables: { username: email, password } });
+      console.log('success', data);
+      localStorage.setItem('gql_chat_access_token', data?.login?.access_token);
+      // Handle success (e.g., show a success message, clear form)
+      router.push('chat')
+      setPassword('');
+      setEmail('');
+    } catch (err: any) {
+      // Handle error (e.g., show an error message)
+      console.error(err);
+      setError(err.message.toString());
+    }
+
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
@@ -18,11 +60,15 @@ const LoginPage = () => {
 
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
             <input
-              type="email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-              placeholder="Enter your email"
+              type="text"
+              name='email'
+              value={email}
+              required
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700"
+              placeholder="Enter your username"
             />
           </div>
 
@@ -30,11 +76,24 @@ const LoginPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <input
               type="password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              name='password'
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700"
               placeholder="Enter your password"
             />
           </div>
 
+          {gqlError && <p className='text-red-700'>{gqlError}</p>}
+
+          <button
+            type="button"
+            onClick={() => handleSubmit()}
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium"
+          >
+            Sign In
+          </button>
           <div className="flex items-center justify-between">
             <label className="flex items-center">
               <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
@@ -43,13 +102,6 @@ const LoginPage = () => {
             <button className="text-sm text-blue-600 hover:text-blue-800">Forgot password?</button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => router.push('chat')}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium"
-          >
-            Sign In
-          </button>
         </div>
 
         <div className="mt-8 text-center">
