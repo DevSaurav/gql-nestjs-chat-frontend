@@ -91,6 +91,8 @@ const ChatPage = () => {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [userName, setUserName] = useState<any>();
+  const [contacts, setContacts] = useState<any>();
+
   const [chatUser, setChatUser] = useState();
 
   //gql operations
@@ -127,10 +129,9 @@ const ChatPage = () => {
 
   //sideeffect to load initial data
   useEffect(() => {
-
     //redirect to login page if not access token
-    if(!localStorage?.getItem("gql_chat_access_token")){
-      router.push('/login')
+    if (!localStorage?.getItem("gql_chat_access_token")) {
+      router.push("/login");
     }
     setUserName(localStorage?.getItem("gql_chat_name"));
 
@@ -152,16 +153,15 @@ const ChatPage = () => {
   //set default chat user, default to first user from the list
   useEffect(() => {
     setChatUser(inboxData?.inbox[0]);
+    setContacts(inboxData?.inbox);
   }, [inboxData]);
 
   //side effect to load incoming message from subscription of messageAdded type
   useEffect(() => {
-    console.log(subscribedMessage, "subscribedMessage");
     if (
       subscribedMessage?.messageAdded &&
       subscribedMessage?.messageAdded.receiver.username == userName
     ) {
-      console.log(subscribedMessage, "subscribedMessage inside");
       const newMessage = {
         id: subscribedMessage?.messageAdded._id,
         sender: subscribedMessage?.messageAdded.user.username,
@@ -171,6 +171,15 @@ const ChatPage = () => {
         ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         avatar: "👨‍💼",
       };
+
+      //updated unread count in messages
+      const contactsUpdate = contacts?.map((c: any) =>
+        c.username == subscribedMessage?.messageAdded.user.username
+          ? { ...c, unread: 1, lastMessage: newMessage.content }
+          : { ...c, unread: 0 }
+      );
+      console.log(contactsUpdate);
+      setContacts([...contactsUpdate]);
       setMessages([...messages, newMessage]);
       setMessage("");
     }
@@ -267,11 +276,15 @@ const ChatPage = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {inboxData?.inbox.map((contact) => (
+          {contacts?.map((contact) => (
             <div
               key={contact._id}
               onClick={() => setChatUser(contact)}
-              className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100"
+              className={
+                chatUser._id == contact._id
+                  ? "flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 bg-gradient-to-r from-blue-200"
+                  : "flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b"
+              }
             >
               <div className="relative">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-lg">
