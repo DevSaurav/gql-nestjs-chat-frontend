@@ -25,24 +25,26 @@ const LoginPage = () => {
   const router = useRouter()
   const [email, setEmail] = useState('');
   const [gqlError, setError] = useState('');
-
   const [password, setPassword] = useState('');
-  const [createUser, { data, loading, error }] = useMutation(LOGIN_MUTATION, { client: createApolloClient() });
+  const [createUser] = useMutation(LOGIN_MUTATION, { client: createApolloClient });
 
   const handleSubmit = async () => {
     setError('');
-    console.log(email, password)
+   
     try {
-      const {data} = await createUser({ variables: { username: email, password } });
+      const { data } = await createUser({ variables: { username: email, password } });
       console.log('success', data);
       localStorage.setItem('gql_chat_access_token', data?.login?.access_token);
+      localStorage.setItem('gql_chat_email', data?.login?.user?.email);
+            localStorage.setItem('gql_chat_name', data?.login?.user?.username);
+
+
       // Handle success (e.g., show a success message, clear form)
       router.push('chat')
       setPassword('');
       setEmail('');
     } catch (err: any) {
       // Handle error (e.g., show an error message)
-      console.error(err);
       setError(err.message.toString());
     }
 

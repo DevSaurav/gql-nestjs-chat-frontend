@@ -1,10 +1,53 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache, createHttpLink, ApolloLink, from, split } from '@apollo/client';
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { getMainDefinition } from '@apollo/client/utilities';
+import { createClient } from "graphql-ws"
 
-const createApolloClient = () => {
-    return new ApolloClient({
-        uri: process.env.API_SERVER??'http://localhost:3000/graphql',
-        cache: new InMemoryCache(),
-    });
-};
+const gqlURL = process.env.API_SERVER ?? 'http://localhost:3000/graphql';
 
-export default createApolloClient;
+const httpLink = createHttpLink({
+  uri: gqlURL
+});
+
+const authLink = new ApolloLink((operation, forward) => {
+  operation.setContext(({ headers = {} }) => ({
+    headers: {
+      ...headers,
+      'Authorization': `Bearer ${localStorage.getItem('gql_chat_access_token')}`
+    }
+  }));
+  return forward(operation);
+});
+
+const wsLink = new GraphQLWsLink(createClient({
+
+  url: gqlURL
+
+}));
+
+const splitLink = split(
+
+  ({ query }) => {
+
+    const definition = getMainDefinition(query);
+
+    return (
+
+      definition.kind === 'OperationDefinition' &&
+
+      definition.operation === 'subscription'
+
+    );
+
+  },
+  wsLink,
+  httpLink,
+
+);
+
+const client = new ApolloClient({
+  link: from([authLink,splitLink]),
+  cache: new InMemoryCache(),
+});
+
+export default client;
