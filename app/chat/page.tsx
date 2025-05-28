@@ -185,26 +185,6 @@ const ChatPage = () => {
     }
   }, [subscribedMessage]);
 
-  // const contacts = [
-  //   {
-  //     id: 1,
-  //     name: "John Doe",
-  //     avatar: "👨‍💼",
-  //     status: "online",
-  //     lastMessage: "That sounds exciting!",
-  //     time: "2:35 PM",
-  //     unread: 0,
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Mohn Doe",
-  //     avatar: "👩‍💻",
-  //     status: "online",
-  //     lastMessage: "See you tomorrow!",
-  //     time: "1:20 PM",
-  //     unread: 2,
-  //   },
-  // ];
 
   const handleSendMessage = async () => {
     try {
@@ -295,8 +275,8 @@ const ChatPage = () => {
                     contact.status === "online"
                       ? "bg-green-400"
                       : contact.status === "away"
-                      ? "bg-yellow-400"
-                      : "bg-gray-400"
+                      ? "bg-green-400"
+                      : "bg-green-400"
                   }`}
                 ></div>
               </div>
