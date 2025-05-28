@@ -77,6 +77,7 @@ npm run test
 ```
 /app          # App routes
 /public         # Static assets
+apollo-client.js £ apollo configuration
 ```
 
 ---
