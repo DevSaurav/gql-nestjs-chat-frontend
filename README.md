@@ -92,6 +92,20 @@ NEXT_PUBLIC_API_SERVER=https://api.example.com
 
 ---
 
+## 🌐 Enhancements to be done
+
+```bash
+* UI enhancements
+* Forgot password integrations
+* Email validations
+* Update authentication with refresg token
+* Proper Form Validations
+* User profile
+* Send Media on chat interface
+```
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
