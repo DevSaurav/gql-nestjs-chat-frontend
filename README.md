@@ -5,9 +5,7 @@ A sleek and responsive chat application frontend built with Next.js and Tailwind
 
 ## 📸 Demo
 
-Add a link to a live demo or a screenshot:
-
-[Live Demo](https://drive.google.com/file/d/11kVQJyeaWmh2vLACsdbI4jnEQqb4Mm12/view?usp=sharing)
+[Screenshot](https://drive.google.com/file/d/11kVQJyeaWmh2vLACsdbI4jnEQqb4Mm12/view?usp=sharing)
 
 
 ---
